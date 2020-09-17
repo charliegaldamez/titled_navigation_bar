@@ -13,6 +13,7 @@ class TitledBottomNavigationBar extends StatefulWidget {
   final Color inactiveStripColor;
   final Color indicatorColor;
   final bool enableShadow;
+  final double indicatorHeight;
   int currentIndex;
   final ValueChanged<int> onTap;
   final List<TitledNavigationBarItem> items;
@@ -27,6 +28,7 @@ class TitledBottomNavigationBar extends StatefulWidget {
     this.inactiveColor,
     this.inactiveStripColor,
     this.indicatorColor,
+    this.indicatorHeight,
     this.enableShadow = true,
     this.currentIndex = 0,
   })  : assert(items != null),
@@ -42,11 +44,12 @@ class TitledBottomNavigationBar extends StatefulWidget {
 
 class _TitledBottomNavigationBarState extends State<TitledBottomNavigationBar> {
   static const double BAR_HEIGHT = 60;
-  static const double INDICATOR_HEIGHT = 2;
 
   bool get reverse => widget.reverse;
 
   Curve get curve => widget.curve;
+
+  double get indicatorHeight => widget.indicatorHeight ?? 4;
 
   List<TitledNavigationBarItem> get items => widget.items;
 
@@ -82,7 +85,7 @@ class _TitledBottomNavigationBarState extends State<TitledBottomNavigationBar> {
         overflow: Overflow.visible,
         children: <Widget>[
           Positioned(
-            top: INDICATOR_HEIGHT,
+            top: indicatorHeight,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: items.map((item) {
@@ -105,7 +108,7 @@ class _TitledBottomNavigationBarState extends State<TitledBottomNavigationBar> {
               child: Container(
                 color: widget.indicatorColor ?? activeColor,
                 width: width / items.length,
-                height: INDICATOR_HEIGHT,
+                height: indicatorHeight,
               ),
             ),
           ),
@@ -121,17 +124,17 @@ class _TitledBottomNavigationBarState extends State<TitledBottomNavigationBar> {
     setState(() {});
   }
 
-  Widget _buildIcon(TitledNavigationBarItem item) {
+  Widget _buildIcon(TitledNavigationBarItem item, bool isSelected) {
     return Icon(
       item.icon,
-      color: reverse ? widget.inactiveColor : activeColor,
+      color: isSelected ? activeColor: widget.inactiveColor,
     );
   }
 
-  Widget _buildText(TitledNavigationBarItem item) {
+  Widget _buildText(TitledNavigationBarItem item, bool isSelected) {
     return DefaultTextStyle.merge(
       child: item.title,
-      style: TextStyle(color: reverse ? activeColor : widget.inactiveColor),
+      style: TextStyle(color: isSelected ? activeColor : widget.inactiveColor),
     );
   }
 
@@ -140,20 +143,11 @@ class _TitledBottomNavigationBarState extends State<TitledBottomNavigationBar> {
       color: item.backgroundColor,
       height: BAR_HEIGHT,
       width: width / items.length,
-      child: Stack(
-        alignment: AlignmentDirectional.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          AnimatedOpacity(
-            opacity: isSelected ? 0.0 : 1.0,
-            duration: duration,
-            curve: curve,
-            child: reverse ? _buildIcon(item) : _buildText(item),
-          ),
-          AnimatedAlign(
-            duration: duration,
-            alignment: isSelected ? Alignment.center : Alignment(0, 5.2),
-            child: reverse ? _buildText(item) : _buildIcon(item),
-          ),
+          _buildIcon(item, isSelected),
+          _buildText(item, isSelected),
         ],
       ),
     );
